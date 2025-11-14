@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 
 import java.util.HashMap;
@@ -39,7 +40,15 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(GlobalResponse.failure("Invalid phone number or password"));
     }
-
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<GlobalResponse<Object>> handleNoResourceFound(NoResourceFoundException ex) {
+        log.error("Endpoint not found: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(GlobalResponse.failure(
+                        "Endpoint not found: " + ex.getResourcePath()
+                ));
+    }
 
     @ExceptionHandler(AuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

@@ -50,15 +50,10 @@ public class GeneratorUtil {
         return sb.toString();
     }
 
-    /**
-     * Generate numeric OTP
-     * Example: 123456
-     */
-    public static String generateOTP(int length) {
-        StringBuilder otp = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            otp.append(RANDOM.nextInt(10));
-        }
-        return otp.toString();
+
+    public static String generateOtp() {
+        SecureRandom random = new SecureRandom();
+        int otp = 100000 + random.nextInt(900000);
+        return String.valueOf(otp);
     }
 }

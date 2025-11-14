@@ -1,29 +1,40 @@
 package com.backend.hypershop.controller;
 
-import com.backend.hypershop.dto.request.LoginRequest;
-import com.backend.hypershop.dto.request.RegisterRequest;
-import com.backend.hypershop.dto.response.AuthResponse;
+import com.backend.hypershop.dto.request.OtpRequest;
+import com.backend.hypershop.dto.request.OtpVerifyRequest;
 import com.backend.hypershop.dto.schema.GlobalResponse;
+import com.backend.hypershop.repository.UserOtpRepository;
+import com.backend.hypershop.repository.UserRepository;
 import com.backend.hypershop.service.AuthService;
+import com.backend.hypershop.utils.JwtUtil;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
+    private final UserOtpRepository userOtpRepository;
+    private final JwtUtil jwtUtil;
 
-    @PostMapping("/register")
-    public GlobalResponse<AuthResponse> register(@RequestBody RegisterRequest request) {
-        AuthResponse response = authService.register(request);
-        return GlobalResponse.success("Registration successful", response);
+
+    @PostMapping("/consumer/login/requestOtp")
+    public GlobalResponse<?> requestLoginOtp(@Valid @RequestBody OtpRequest request) {
+       return authService.sendConsumerLoginOtp(request);
     }
 
-    @PostMapping("/login")
-    public GlobalResponse<AuthResponse> login(@RequestBody LoginRequest request) {
-        AuthResponse response = authService.login(request);
-        return GlobalResponse.success("Login successful", response);
+    @PostMapping("/consumer/login/verifyOtp")
+    public GlobalResponse<?> verifyOtpAndLogin(@Valid @RequestBody OtpVerifyRequest request) {
+       return authService.verifyConsumerLoginOtp(request);
     }
+
+
+
 }

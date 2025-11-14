@@ -1,11 +1,19 @@
 package com.backend.hypershop.service;
 
-import com.backend.hypershop.dto.request.LoginRequest;
-import com.backend.hypershop.dto.request.RegisterRequest;
-import com.backend.hypershop.dto.response.AuthResponse;
+import com.backend.hypershop.dto.request.OtpRequest;
+import com.backend.hypershop.dto.request.OtpVerifyRequest;
+import com.backend.hypershop.dto.schema.GlobalResponse;
 
 public interface AuthService {
-    AuthResponse register(RegisterRequest request);
 
-    AuthResponse login(LoginRequest request);
+    GlobalResponse<?> sendConsumerLoginOtp(OtpRequest request);
+
+
+    GlobalResponse<?> verifyConsumerLoginOtp(OtpVerifyRequest request);
+
+    GlobalResponse<?> sendRiderLoginOtp(OtpRequest request);
+
+    GlobalResponse<?> sendManagerLoginOtp(OtpRequest request);
+
+    GlobalResponse<?> sendAdminLoginOtp(OtpRequest request);
 }
