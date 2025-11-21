@@ -27,18 +27,18 @@ jobs:
       - name: Deploy to EC2 via SSH
         env:
           HOST: ${{ secrets.EC2_HOST }}
-          USER: ${{ secrets.EC2_USER }}      # ubuntu
+          USER: ${{ secrets.EC2_USER }}
           SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
-          echo "$SSH_KEY" > key.pem
+          printf '%s\n' "$SSH_KEY" > key.pem
+          sed -i 's/\r$//' key.pem
           chmod 600 key.pem
 
-          # jar copy karo: target se EC2 ke /opt/hypershop/hypershop.jar par
           scp -o StrictHostKeyChecking=no -i key.pem target/*.jar $USER@$HOST:/opt/hypershop/hypershop.jar
 
-          # remote server pe hypershop service restart
           ssh -o StrictHostKeyChecking=no -i key.pem $USER@$HOST << 'EOF'
             sudo systemctl daemon-reload || true
             sudo systemctl restart hypershop
             sudo systemctl status hypershop --no-pager -l || true
           EOF
+      
