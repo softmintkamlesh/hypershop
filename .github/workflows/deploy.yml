@@ -1,0 +1,42 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build jar
+        run: |
+          ./mvnw clean package -DskipTests
+
+      - name: Deploy to EC2 via SSH
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}      # ubuntu
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_KEY" > key.pem
+          chmod 600 key.pem
+
+          # jar copy karo: target se EC2 ke /opt/hypershop/hypershop.jar par
+          scp -o StrictHostKeyChecking=no -i key.pem target/*.jar $USER@$HOST:/opt/hypershop/hypershop.jar
+
+          # remote server pe hypershop service restart
+          ssh -o StrictHostKeyChecking=no -i key.pem $USER@$HOST << 'EOF'
+            sudo systemctl daemon-reload || true
+            sudo systemctl restart hypershop
+            sudo systemctl status hypershop --no-pager -l || true
+          EOF
